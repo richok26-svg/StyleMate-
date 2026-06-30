@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Style Mate</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Style Mate</h1>
+      <p>Your personal wardrobe and outfit companion</p>
+    </div>
+    <button id="syncBtn" class="ghost">Sync</button>
+  </header>
+
+  <main>
+    <section id="setupCard" class="card setup hidden">
+      <h2>Connect Supabase</h2>
+      <p class="muted">Paste your Supabase Project URL and publishable/anon key. Do not use the service role key.</p>
+      <label>Project URL</label>
+      <input id="supabaseUrl" placeholder="https://xxxx.supabase.co">
+      <label>Publishable / anon key</label>
+      <textarea id="supabaseKey" placeholder="eyJ..." rows="4"></textarea>
+      <div class="row">
+        <button id="saveConfigBtn">Save connection</button>
+        <button id="testConfigBtn" class="secondary">Test</button>
+      </div>
+      <p id="configStatus" class="muted"></p>
+    </section>
+
+    <nav class="tabs">
+      <button data-tab="home" class="active">Home</button>
+      <button data-tab="wardrobe">Wardrobe</button>
+      <button data-tab="add">Add</button>
+      <button data-tab="outfits">Outfits</button>
+      <button data-tab="wishlist">Wishlist</button>
+      <button data-tab="settings">Settings</button>
+    </nav>
+
+    <section id="home" class="tab active">
+      <div class="card hero">
+        <h2>Good morning, Richard</h2>
+        <p id="todayIdea">Tap Generate to get a strong outfit from your wardrobe.</p>
+        <button id="quickOutfitBtn">What should I wear?</button>
+      </div>
+      <div class="grid stats">
+        <div class="card"><strong id="itemCount">0</strong><span>Items</span></div>
+        <div class="card"><strong id="favCount">0</strong><span>Favourites</span></div>
+        <div class="card"><strong id="wishCount">0</strong><span>Wishlist</span></div>
+      </div>
+      <div class="card">
+        <h2>Wardrobe gaps</h2>
+        <div id="gaps"></div>
+      </div>
+    </section>
+
+    <section id="wardrobe" class="tab">
+      <div class="card">
+        <h2>My Wardrobe</h2>
+        <input id="search" placeholder="Search brand, colour, item...">
+        <select id="filterCategory">
+          <option value="">All categories</option>
+          <option>Blazer / Jacket</option><option>Top</option><option>Jeans / Trousers</option><option>Shoes / Boots</option><option>Watch</option><option>Belt / Accessory</option>
+        </select>
+      </div>
+      <div id="itemsGrid" class="itemsGrid"></div>
+    </section>
+
+    <section id="add" class="tab">
+      <div class="card">
+        <h2 id="formTitle">Add item</h2>
+        <input type="hidden" id="editId">
+        <label>Name</label><input id="name" placeholder="Douglas Hayward navy blazer">
+        <label>Brand</label><input id="brand" placeholder="Douglas Hayward">
+        <div class="row">
+          <div><label>Category</label><select id="category"><option>Blazer / Jacket</option><option>Top</option><option>Jeans / Trousers</option><option>Shoes / Boots</option><option>Watch</option><option>Belt / Accessory</option></select></div>
+          <div><label>Colour</label><input id="colour" placeholder="Navy"></div>
+        </div>
+        <div class="row">
+          <div><label>Occasion</label><input id="occasion" placeholder="Smart casual, pub, dinner"></div>
+          <div><label>Season</label><input id="season" placeholder="All year / Autumn"></div>
+        </div>
+        <label>Photo</label><input id="photo" type="file" accept="image/*">
+        <label>Notes</label><textarea id="notes" rows="3" placeholder="Fit, when to wear, what it works with..."></textarea>
+        <div class="row">
+          <button id="saveItemBtn">Save item</button>
+          <button id="clearFormBtn" class="secondary">Clear</button>
+        </div>
+        <p id="saveStatus" class="muted"></p>
+      </div>
+    </section>
+
+    <section id="outfits" class="tab">
+      <div class="card">
+        <h2>Outfit Generator</h2>
+        <label>Occasion</label>
+        <select id="outfitOccasion"><option>Smart casual</option><option>Pub with the lads</option><option>Dinner</option><option>Work</option><option>Weekend</option><option>Holiday</option><option>Walking</option></select>
+        <button id="generateOutfitBtn">Generate outfit</button>
+        <div id="outfitResult"></div>
+      </div>
+      <div class="card">
+        <h2>Favourite outfits</h2>
+        <div id="savedOutfits"></div>
+      </div>
+    </section>
+
+    <section id="wishlist" class="tab">
+      <div class="card">
+        <h2>Wishlist</h2>
+        <div class="row"><input id="wishName" placeholder="Forest green Harrington"><button id="addWishBtn">Add</button></div>
+        <div id="wishlistList"></div>
+      </div>
+    </section>
+
+    <section id="settings" class="tab">
+      <div class="card">
+        <h2>Cloud Settings</h2>
+        <button id="showSetupBtn">Open Supabase setup</button>
+        <button id="seedBtn" class="secondary">Load starter wardrobe</button>
+        <button id="exportBtn" class="secondary">Export backup</button>
+        <label>Import backup</label><input id="importFile" type="file" accept="application/json">
+        <p class="muted">Style Mate stores data locally first, then syncs to Supabase when connected.</p>
+      </div>
+    </section>
+  </main>
+
+  <template id="itemTpl">
+    <article class="itemCard">
+      <div class="photo"></div>
+      <div class="itemBody">
+        <h3></h3>
+        <p class="meta"></p>
+        <p class="notes"></p>
+        <div class="actions"><button class="fav">☆</button><button class="edit">Edit</button><button class="delete danger">Delete</button></div>
+      </div>
+    </article>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
